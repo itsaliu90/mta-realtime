@@ -1,5 +1,6 @@
 var express = require('express')
 var http = require('http')
+var ProtoBuf = require('protobufjs')
 
 //Fetch data from MTA
 
@@ -11,16 +12,20 @@ var options = {
 var mtaData = '';
 
 var callback = function(response) {
-	var str = '';
+	var data = [];
 	response.on('data', function (chunk) {
-		str += chunk;
+		data.push(chunk);
 	});
 
 	response.on('end', function () {
-		console.log(str);
-		mtaData = str;
+		data = Buffer.concat(data);
+		var msg = transit.FeedMessage.decode(data);
+		console.log(msg);
 	});
 }
+
+//Proto work
+var transit = ProtoBuf.loadProtoFile("nyct-subway.proto.txt").build("transit_realtime");
 
 //Run the server
 
@@ -29,7 +34,7 @@ var app = express()
 app.get('/', function(req, res) {
 
 	function TimeoutHandler() {
-		res.send(mtaData);
+		res.send("Hello");
 	}
 
 	http.request(options, callback).end();
