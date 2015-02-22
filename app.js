@@ -3,6 +3,7 @@ var express = require('express')
 var morgan = require('morgan')
 var http = require('http')
 var swig = require('swig')
+var socketio = require('socket.io')
 var ProtoBuf = require('protobufjs')
 var _ = require('underscore')
 
@@ -21,7 +22,6 @@ swig.setDefaults({ cache: false });
 var options = require('./config').options
 
 //Fetch the data
-
 var currentLine = "2"
 var mtaData = '';
 var transit = ProtoBuf.loadProtoFile("nyct-subway.proto.txt").build("transit_realtime");
@@ -34,8 +34,8 @@ var pollMTA = function(response) {
 
 	response.on('end', function () {
 		data = Buffer.concat(data);
-		var msg = transit.FeedMessage.decode(data);
-		var tripData = msg.entity;
+		var decodedFeedMessage = transit.FeedMessage.decode(data);
+		var tripData = decodedFeedMessage.entity;
 
 		filteredTripData = _.filter(tripData, function(tripData) {
 			if (tripData.trip_update) {
@@ -43,24 +43,25 @@ var pollMTA = function(response) {
 			}
 		})
 
+		
+
+		io.emit('update', "Received data!");
 		console.log("Number of trains currently running on " + currentLine + " line is " + filteredTripData.length);
 		mtaData = filteredTripData;
 	});
 }
 
-//Long polling code
-
+//Long polling code	
 setInterval(function () {
 	http.request(options, pollMTA).end();
-	console.log("Poll request made!");
+	console.log("Poll request made at " + Date.now());
 }, 5000);
 
 //Routes
-
 app.get('/', function(req, res) {
 	res.render("index");
 })
 
 //Run the server
-
 var server = app.listen(3000);
+var io = socketio.listen(server);
