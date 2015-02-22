@@ -9,6 +9,9 @@
 	 
 	    <title>Sticky Footer Navbar Template for Bootstrap</title>
 	 
+	    <!-- Custom styles for this template -->
+	    <link href="/stylesheets/style.css" rel="stylesheet">
+
 	    <!-- Bootstrap core CSS -->
 	    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
 	 
@@ -22,16 +25,19 @@
   	<body>
 		<h1>MTA 1 Train Status</h1>
 		<p>The status of all the 1 trains is below:</p>
+		<div id="updatebox"></div>
 
 <!-- Bootstrap core JavaScript
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
-
+    	<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    	<script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
 		<script src="/socket.io/socket.io.js"></script>
 		<script>
 			var socket = io.connect();
 			socket.on('update', function (data) {
 				console.log(data);
+				$("#updatebox").append("<p>" + data + "</p>");
 			});
 		</script>
 	</body>

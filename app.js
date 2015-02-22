@@ -8,7 +8,8 @@ var ProtoBuf = require('protobufjs')
 var _ = require('underscore')
 
 var app = express()
-app.use(morgan('dev'))
+app.use(morgan('dev'));
+app.use(express.static(__dirname + '/public'));
 
 //Use Swig to render HTML
 app.engine('html', swig.renderFile);
@@ -23,7 +24,7 @@ var options = require('./config').options
 
 //Fetch the data
 var currentLine = "2"
-var mtaData = '';
+var mtaData = ''
 var transit = ProtoBuf.loadProtoFile("nyct-subway.proto.txt").build("transit_realtime");
 
 var pollMTA = function(response) {
@@ -43,7 +44,7 @@ var pollMTA = function(response) {
 			}
 		})
 
-		
+
 
 		io.emit('update', "Received data!");
 		console.log("Number of trains currently running on " + currentLine + " line is " + filteredTripData.length);
