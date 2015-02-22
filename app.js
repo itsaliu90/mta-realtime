@@ -1,9 +1,21 @@
 //Application requirements
-
 var express = require('express')
+var morgan = require('morgan')
 var http = require('http')
+var swig = require('swig')
 var ProtoBuf = require('protobufjs')
 var _ = require('underscore')
+
+var app = express()
+app.use(morgan('dev'))
+
+//Use Swig to render HTML
+app.engine('html', swig.renderFile);
+
+app.set('view engine', 'html');
+app.set('views', __dirname + '/views');
+
+swig.setDefaults({ cache: false });
 
 //Require config options.
 var options = require('./config').options
@@ -40,15 +52,15 @@ var pollMTA = function(response) {
 
 setInterval(function () {
 	http.request(options, pollMTA).end();
-	console.log("Request made!");
+	console.log("Poll request made!");
 }, 5000);
 
-//Run the server
-
-var app = express()
+//Routes
 
 app.get('/', function(req, res) {
-	res.send("MTA Train Status");
+	res.render("index");
 })
+
+//Run the server
 
 var server = app.listen(3000);
